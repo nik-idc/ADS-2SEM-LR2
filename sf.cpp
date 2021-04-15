@@ -7,42 +7,34 @@ sfCode::sfCode()
 	decodedSize = 0;
 }
 
-void sfCode::swap(int &el_1, int &el_2)
-{
-	int temp = el_2;
-	el_2 = el_1;
-	el_1 = temp;
-}
-
-int sfCode::partition(list<symb> &l, int start, int end)
-{
-	int pivot = l[(start + end) / 2].freq();
-	int i = start - 1;
-	int j = end + 1;
-	while (1)
-	{
-		do
-			i = i + 1;
-		while (l[i].freq() > pivot);
-		do
-			j = j - 1;
-		while (l[j].freq() < pivot);
-		if (i >= j)
-			return j;
-		symb temp = l[j];
-		l[j] = l[i];
-		l[i] = temp;
-	}
-}
-
 void sfCode::revQuickSort(list<symb> &l, int start, int end)
 {
-	if (start >= end) // Exit condition
-		return;
-	int index = partition(l, start, end); // First partition the array, i.e. put all elements <= pivot to the left of the pivot, and elements > pivot to the right of the pivot
+	long i = start, j = end;
+	int temp, p;
 
-	revQuickSort(l, start, index); //Sort sublist before the pivot
-	revQuickSort(l, index + 1, end); //Sort sublist after the pivot
+	p = l[(start + end) / 2].freq(); // Middle element
+
+	// Partitioning process
+	do 
+	{
+		while (l[i].freq() > p)
+			i++;
+		while (l[j].freq() < p)
+			j--;
+
+		if (i <= j) 
+		{
+			symb temp = l[j];
+			l[j] = l[i];
+			l[i] = temp;
+			i++; j--;
+		}
+	} while (i <= j);
+
+	if (j > 0)
+		revQuickSort(l, 0, j);
+	if (end > i)
+		revQuickSort(l, i, end);
 }
 
 void sfCode::split(list<symb> symbols, list<symb> &codes, std::string c, size_t &mem)
@@ -50,20 +42,20 @@ void sfCode::split(list<symb> symbols, list<symb> &codes, std::string c, size_t 
 	if (symbols.size() > 1) // Split a node as int as it is inter than 1
 	{
 		list<symb> group1, group2;
-		int f1 = 0, f2 = 0, size = symbols.size(), size1 = 0, size2 = 0;
+		int freqSum1 = 0, freqSum2 = 0, size = symbols.size(), size1 = 0, size2 = 0;
 
 		int k = 0;
 		while (size1 + size2 != size) // Splitting into two groups with relatively equal sums
 		{
-			if (f1 <= f2)
+			if (freqSum1 <= freqSum2)
 			{
-				f1 += symbols[k].freq();
+				freqSum1 += symbols[k].freq();
 				group1.pushBack(symbols[k]);
 				size1++;
 			}
 			else
 			{
-				f2 += symbols[k].freq();
+				freqSum2 += symbols[k].freq();
 				group2.pushBack(symbols[k]);
 				size2++;
 			}
@@ -117,16 +109,16 @@ void sfCode::buildFreqList(std::string input, list<symb> &codes)
 
 void sfCode::storeData(std::string input, list<symb> &codes, size_t mem)
 {
-	size_t bytesCount = 0; // Amount of bytes to allocate for encoded message
+	size_t bytesAllocated = 0; // Amount of bytes to allocate for encoded message
 	if (mem % 8 == 0)
-		bytesCount = mem / 8;
+		bytesAllocated = mem / 8;
 	else
-		bytesCount = (mem / 8) + 1;
+		bytesAllocated = (mem / 8) + 1;
 
-	unsigned char *finCode = new unsigned char[bytesCount]; // Creating a char array of the necessary amount of bytes
+	unsigned char *finCode = new unsigned char[bytesAllocated]; // Creating a char array of the necessary amount of bytes
 
-	size_t bitsCount = 0, count = 0; // 'bitsCount' - amount of bits in the current byte, 'count' - byte iterator
-	unsigned char temp = 0b00000000, a = 0b10000000; // 'temp' - variable to write current byte into, 'a' - for bitwise operations
+	size_t bitsCount = 0, byteCount = 0; // 'bitsCount' - amount of bits in the current byte, 'count' - byte iterator
+	unsigned char curByte = 0b00000000, movableBit = 0b10000000; // 'curByte' - variable to write current byte into, 'a' - for bitwise operations
 
 	for (size_t i = 0; i < input.size(); i++) // Going through the original string
 	{
@@ -138,43 +130,43 @@ void sfCode::storeData(std::string input, list<symb> &codes, size_t mem)
 				{
 					if (codes[j].code()[k] == '1') // If current bit is 1
 					{
-						temp |= (a >> bitsCount);
+						curByte |= (movableBit >> bitsCount);
 					}
 					bitsCount++; // Moving one bit to the right
 					if (bitsCount == 8) // If reached new byte
 					{
-						finCode[count] = temp; // Assign temp to current byte
-						count++; // Iterate through the byte array
+						finCode[byteCount] = curByte;
+						byteCount++; // Iterate through the byte array
 						bitsCount = 0; // Resetting amount of bits to shift to the right in the current byte
-						temp = 0b00000000; // Resetting temp
+						curByte = 0b00000000; // Resetting curByte
 					}
 				}
 			}
 		}
 	}
-	if (finCode[count] != temp && count < bytesCount) // If last byte isn't initialised
-		finCode[count] = temp;
+	if (finCode[byteCount] != curByte && byteCount < bytesAllocated) // If last byte isn't initialised
+		finCode[byteCount] = curByte;
 
-	std::ofstream f; // For writing info into files
-	f.open("coded.txt");
-	for (size_t i = 0; i < bytesCount; i++) // Saving encoded information
+	std::ofstream infoSaver; // For writing info into files
+	infoSaver.open("coded.txt");
+	for (size_t i = 0; i < bytesAllocated; i++) // Saving encoded information
 	{
-		f << finCode[i];
+		infoSaver << finCode[i];
 	}
-	f.close();
+	infoSaver.close();
 
-	f.open("table.txt");
+	infoSaver.open("table.txt");
 	for (size_t i = 0; i < codes.size(); i++) // Saving table of codes for decoding
 	{
-		f << codes[i];
+		infoSaver << codes[i];
 		if(i < codes.size() - 1)
-			f << ' ';
+			infoSaver << ' ';
 	}
-	f.close();
+	infoSaver.close();
 
-	f.open("mem.txt");
-	f << mem; // Writing amount of bits at the end
-	f.close();
+	infoSaver.open("mem.txt");
+	infoSaver << mem; // Writing amount of bits at the end
+	infoSaver.close();
 
 	delete[] finCode;
 }
@@ -184,7 +176,7 @@ void sfCode::encode(std::string input)
 	if (input.size() < 2)
 		throw std::invalid_argument("ERROR: No point encoding a string less than 2 symbols long!");
 
-	list<symb> codes, t; // 'codes' for int term containment, t - a variable for recursion
+	list<symb> codes, symbols; // 'codes' for int term containment, t - a variable for recursion
 	size_t mem = 0; // Represents the exact amount of bits as a result of encoding
 
 	//originalString = input;
@@ -192,8 +184,8 @@ void sfCode::encode(std::string input)
 
 	if (codes.size() > 1) // If message has more than 1 distinct symbol
 	{
-		t = codes;
-		split(t, codes, "", mem); // Building a binary tree of sublists
+		symbols = codes;
+		split(symbols, codes, "", mem); // Building a binary tree of sublists
 	}
 	else
 	{
@@ -208,71 +200,70 @@ void sfCode::decode()
 	list<symb> codes; // List that symbols and their codes will be written into
 	size_t mem = 0; // Represents the exact amount of bits as a result of encoding
 
-	std::ifstream f;
-	std::ofstream writeDecoded;
-	f.open("table.txt", std::ios_base::in | std::ios_base::binary); // Opening the table file to get the codes and the alphabet
+	std::ifstream infoReader;
+	std::ofstream saveDecoded;
+	infoReader.open("table.txt", std::ios_base::in | std::ios_base::binary); // Opening the table file to get the codes and the alphabet
 
-	char curSymbol = 0; // Temporary variable to read symbols from file;
+	char curTableSymbol = 0; // Temporary variable to read symbols from file;
 	std::string curCode = ""; // String variable to read current code
 	bool first = false; // 'true' if current symbol is part of the original string, 'false' if it's part of the code
-	size_t count = 0; // Iterator for letters
+	size_t lettersCount = 0; // Iterator for letters
 
-	while (f >> std::noskipws >> curSymbol) // Read file until end
+	while (infoReader >> std::noskipws >> curTableSymbol) // Read file until end
 	{
 		if (!first) // If its a part of the alphabet then add it to the list
 		{
 			first = true;
-			codes.pushBack(curSymbol);
+			codes.pushBack(curTableSymbol);
 		}
 		else // Otherwise it's the code for that symbol
 		{
 			do
-				curCode.push_back(curSymbol);
-			while (f >> std::noskipws >> curSymbol && curSymbol != ' '); // Read the code until encounter a space or end of the file			
+				curCode.push_back(curTableSymbol);
+			while (infoReader >> std::noskipws >> curTableSymbol && curTableSymbol != ' '); // Read the code until encounter a space or end of the file			
 			
-			codes[count].setCode(curCode); // Set the code for current letter in the alphabet
-			count++; // Iterate
+			codes[lettersCount].setCode(curCode); // Set the code for current letter in the alphabet
+			lettersCount++; // Iterate
 			curCode = "";
 
 			first = false;
 		}
 	}
 
-	f.close();
+	infoReader.close();
 
-	f.open("mem.txt", std::ios_base::in | std::ios_base::binary); // Opening the file containing the amount of bits
-	f >> mem; // Reading info
-	f.close();
+	infoReader.open("mem.txt", std::ios_base::in | std::ios_base::binary); // Opening the file containing the amount of bits
+	infoReader >> mem; // Reading info
+	infoReader.close();
 
-	f.open("coded.txt", std::ios_base::in | std::ios_base::binary); // Opening the file containing the code
-	writeDecoded.open("decoded.txt"); // Opening file to write decoded info to
+	infoReader.open("coded.txt", std::ios_base::in | std::ios_base::binary); // Opening the file containing the code
+	saveDecoded.open("decoded.txt"); // Opening file to write decoded info to
 
 	std::string decoded = ""; // Writing the bits into 'bits' string, decoded information into 'decoded'
-	unsigned char c = 0, temp; // 'c' for reading character, 'temp' for bitwise operations
+	unsigned char curSymbol = 0, movableBit; // 'c' for reading character, 'temp' for bitwise operations
 
-	int k = 0; // Bits iterator
-	std::string t = ""; // Temporary string to read current character's code
-	while (f >> std::noskipws >> c)
+	size_t bitsCount = 0; // Bits iterator
+	while (infoReader >> std::noskipws >> curSymbol)
 	{
-		temp = 0b10000000;
-		for (size_t i = 0; i < 8 && k < mem; i++, k++) // Going through current character's bits
+		movableBit = 0b10000000;
+		for (size_t i = 0; i < 8 && bitsCount < mem; i++, bitsCount++) // Going through current character's bits
 		{
-			if ((temp >> i) & c)
-				t += "1";
+			if ((movableBit >> i) & curSymbol)
+				curCode += "1";
 			else
-				t += "0";
+				curCode += "0";
 			for (size_t j = 0; j < codes.size(); j++) // Going through all the codes to see if current string of 1's and 0's is a code
 			{
-				if (t == codes[j].code())
+				if (curCode == codes[j].code())
 				{
 					decoded += codes[j].letter();
-					writeDecoded << codes[j].letter();
-					t = "";
+					saveDecoded << codes[j].letter();
+					curCode = "";
 					break;
 				}
 			}
 		}
 	}
-	f.close();
-	writeDecoded.close();
+	infoReader.close();
+	saveDecoded.close();
 }
