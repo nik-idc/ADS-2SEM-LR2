@@ -113,7 +113,7 @@ void sfCode::storeData(std::string input, list<symb> &codes, size_t mem)
 
 	unsigned char *finCode = new unsigned char[bytesAllocated]; // Creating a char array of the necessary amount of bytes
 
-	size_t bitsCount = 0, byteCount = 0; // 'bitsCount' - amount of bits in the current byte, 'count' - byte iterator
+	size_t bitsCount = 0, byteCount = 0; // 'bitsCount' - amount of bits in the current byte, 'byteCount' - byte iterator
 	unsigned char curByte = 0b00000000, movableBit = 0b10000000; // 'curByte' - variable to write current byte into, 'movableBit' - for bitwise operations
 
 	for (size_t i = 0; i < input.size(); i++) // Going through the original string
@@ -172,7 +172,7 @@ void sfCode::encode(std::string input)
 	if (input.size() < 2)
 		throw std::invalid_argument("ERROR: No point encoding a string less than 2 symbols long!");
 
-	list<symb> codes, symbols; // 'codes' for int term containment, t - a variable for recursion
+	list<symb> codes, symbols; // 'codes' for int term containment, symbols - a variable for recursion
 	size_t mem = 0; // Represents the exact amount of bits as a result of encoding
 
 	buildFreqList(input, codes); // Building frequency list from the initial input string
@@ -199,7 +199,7 @@ void sfCode::decode()
 	std::ofstream saveDecoded;
 	infoReader.open("table.txt", std::ios_base::in | std::ios_base::binary); // Opening the table file to get the codes and the alphabet
 
-	char curTableSymbol = 0; // Temporary variable to read symbols from file;
+	char curTableSymbol = 0; // Variable to read symbols from file;
 	std::string curCode = ""; // String variable to read current code
 	bool first = false; // 'true' if current symbol is part of the original string, 'false' if it's part of the code
 	size_t lettersCount = 0; // Iterator for letters
