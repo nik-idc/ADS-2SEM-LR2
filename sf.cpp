@@ -39,7 +39,7 @@ void sfCode::revQuickSort(list<symb> &l, int start, int end)
 
 void sfCode::split(list<symb> symbols, list<symb> &codes, std::string c, size_t &mem)
 {
-	if (symbols.size() > 1) // Split a node as int as it is inter than 1
+	if (symbols.size() > 1) // Split if more than 1 elements
 	{
 		list<symb> group1, group2;
 		int freqSum1 = 0, freqSum2 = 0, size = symbols.size();
