@@ -42,24 +42,20 @@ void sfCode::split(list<symb> symbols, list<symb> &codes, std::string c, size_t 
 	if (symbols.size() > 1) // Split a node as int as it is inter than 1
 	{
 		list<symb> group1, group2;
-		int freqSum1 = 0, freqSum2 = 0, size = symbols.size(), size1 = 0, size2 = 0;
+		int freqSum1 = 0, freqSum2 = 0, size = symbols.size();
 
-		int k = 0;
-		while (size1 + size2 != size) // Splitting into two groups with relatively equal sums
+		for(size_t i = 0; i < size; i++) // Splitting into two groups with relatively equal sums
 		{
 			if (freqSum1 <= freqSum2)
 			{
-				freqSum1 += symbols[k].freq();
-				group1.pushBack(symbols[k]);
-				size1++;
+				freqSum1 += symbols[i].freq();
+				group1.pushBack(symbols[i]);
 			}
 			else
 			{
-				freqSum2 += symbols[k].freq();
-				group2.pushBack(symbols[k]);
-				size2++;
+				freqSum2 += symbols[i].freq();
+				group2.pushBack(symbols[i]);
 			}
-			k++;
 		}
 
 		// Coninuing building the tree
