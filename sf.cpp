@@ -118,7 +118,7 @@ void sfCode::storeData(std::string input, list<symb> &codes, size_t mem)
 	unsigned char *finCode = new unsigned char[bytesAllocated]; // Creating a char array of the necessary amount of bytes
 
 	size_t bitsCount = 0, byteCount = 0; // 'bitsCount' - amount of bits in the current byte, 'count' - byte iterator
-	unsigned char curByte = 0b00000000, movableBit = 0b10000000; // 'curByte' - variable to write current byte into, 'a' - for bitwise operations
+	unsigned char curByte = 0b00000000, movableBit = 0b10000000; // 'curByte' - variable to write current byte into, 'movableBit' - for bitwise operations
 
 	for (size_t i = 0; i < input.size(); i++) // Going through the original string
 	{
@@ -179,7 +179,6 @@ void sfCode::encode(std::string input)
 	list<symb> codes, symbols; // 'codes' for int term containment, t - a variable for recursion
 	size_t mem = 0; // Represents the exact amount of bits as a result of encoding
 
-	//originalString = input;
 	buildFreqList(input, codes); // Building frequency list from the initial input string
 
 	if (codes.size() > 1) // If message has more than 1 distinct symbol
@@ -239,8 +238,8 @@ void sfCode::decode()
 	infoReader.open("coded.txt", std::ios_base::in | std::ios_base::binary); // Opening the file containing the code
 	saveDecoded.open("decoded.txt"); // Opening file to write decoded info to
 
-	std::string decoded = ""; // Writing the bits into 'bits' string, decoded information into 'decoded'
-	unsigned char curSymbol = 0, movableBit; // 'c' for reading character, 'temp' for bitwise operations
+	std::string decoded = ""; // Writing decoded information into 'decoded'
+	unsigned char curSymbol = 0, movableBit; // 'curSymbol' - variable to write current symbol into, 'movableBit' - for bitwise operations
 
 	size_t bitsCount = 0; // Bits iterator
 	while (infoReader >> std::noskipws >> curSymbol)
