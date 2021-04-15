@@ -9,35 +9,35 @@ void showResult()
 	float codedSize = 0, decodedSize = 0;
 	std::string codedStr, decodedStr, tableStr;
 
-	std::ifstream f;
+	std::ifstream fileReader;
 
 	// Getting the size of coded
-	f.open("coded.txt", std::ifstream::ate | std::ifstream::binary);
-	codedSize = f.tellg();
-	f.close();
+	fileReader.open("coded.txt", std::ifstream::ate | std::ifstream::binary);
+	codedSize = fileReader.tellg();
+	fileReader.close();
 
 	// Reading the coded file
-	f.open("coded.txt", std::ifstream::in | std::ifstream::binary);
-	while (f >> std::noskipws >> ch)	
+	fileReader.open("coded.txt", std::ifstream::in | std::ifstream::binary);
+	while (fileReader >> std::noskipws >> ch)	
 		codedStr.push_back(ch);
-	f.close();
+	fileReader.close();
 
 	// Getting the size of decoded
-	f.open("decoded.txt", std::ifstream::ate | std::ifstream::binary);
-	decodedSize = f.tellg();
-	f.close();
+	fileReader.open("decoded.txt", std::ifstream::ate | std::ifstream::binary);
+	decodedSize = fileReader.tellg();
+	fileReader.close();
 
 	// Reading the decoded file
-	f.open("decoded.txt", std::ifstream::in | std::ifstream::binary);
-	while (f >> std::noskipws >> ch)	
+	fileReader.open("decoded.txt", std::ifstream::in | std::ifstream::binary);
+	while (fileReader >> std::noskipws >> ch)	
 		decodedStr.push_back(ch);
-	f.close();
+	fileReader.close();
 
 	// Reading the decoded file
-	f.open("table.txt", std::ifstream::in | std::ifstream::binary);
-	while (f >> std::noskipws >> ch)
+	fileReader.open("table.txt", std::ifstream::in | std::ifstream::binary);
+	while (fileReader >> std::noskipws >> ch)
 		tableStr.push_back(ch);
-	f.close();
+	fileReader.close();
 
 	// Printing out info
 	std::cout << "Table of codes: " << tableStr << std::endl;
