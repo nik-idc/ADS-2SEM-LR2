@@ -19,11 +19,6 @@ public:
 	void decode();
 
 private:
-	// Swap method for revQuickSort
-	void swap(int &el_1, int &el_2);
-
-	// Partition method for revQuickSort
-	int partition(list<symb> &l, int start, int end);
 
 	// Reverse quick sort
 	void revQuickSort(list<symb> &l, int start, int end);
